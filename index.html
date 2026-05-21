@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSTS Costume Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@100..900&display=swap');
+  
+
+  :root {
+    --bg: #171a24;
+    --surface: #242d40;
+    --surface2: #303d59;
+    --border: #485781;
+    --accent: #ffffff;
+    --accent-dim: #1d4ed8;
+    --green: #22c55e;
+    --green-dim: #16a34a;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-muted: #b3c7dc;
+    --mono: 'Commissioner', monospace;
+    --sans: 'Commissioner', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--text);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 10px;
+    letter-spacing: 0.06em;
+    font-family: var(--mono);
+  }
+  
+  header a {
+  color: #b4c7db;
+  font-weight: bold;
+  text-decoration: none;
+  }
+  
+  header a:hover {
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+  }
+
+  .form-container {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 36px 40px;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    margin-bottom: 18px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 28px;
+    margin-bottom: 28px;
+  }
+
+  .grid.single { grid-template-columns: 1fr; }
+  .grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  input, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  input.error, select.error {
+    border-color: var(--red);
+  }
+
+  select option { background: var(--surface2); }
+
+  .hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .btn-generate {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 13px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-generate:hover { background: var(--green-dim); }
+
+  .btn-download {
+    display: none;
+    width: 100%;
+    margin-top: 12px;
+    padding: 11px;
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-download:hover { background: #6d28d9; }
+
+  /* Output */
+  .output-container {
+    max-width: 820px;
+    margin: 36px auto 0;
+    display: none;
+  }
+
+  .output-section {
+    margin-bottom: 28px;
+  }
+
+  .output-section + .output-section {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  .output-label {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .output-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .copy-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .btn-copy {
+    padding: 5px 14px;
+    background: var(--accent);
+    color: #152e79;
+    border: none;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-copy:hover { background: var(--accent-dim); }
+  .btn-copy.copied { background: var(--green); }
+
+  /* Error popup */
+  .error-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-overlay.active { display: flex; }
+
+  .error-box {
+    background: var(--surface);
+    border: 1px solid var(--red);
+    border-radius: 6px;
+    padding: 28px 36px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .error-box h2 {
+    color: var(--red);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .error-box p {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+  }
+
+  .error-box button {
+    padding: 8px 28px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    .grid.triple { grid-template-columns: 1fr; }
+    .form-container { padding: 24px 18px; }
+  }
+</style>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="data:image/webp;base64,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"
+  >
+
+</head>
+<body>
+
+<header>
+  <h1>DSTS Costume Generator</h1>
+  <p>v1.0.0 | <a href="https://discord.gg/cb5AuxU6su">Discord</a></p>
+</header>
+
+<div class="form-container">
+  <div class="section-label">Costume Information</div>
+  <div class="grid">
+    <div class="field">
+      <label for="outfitName">Costume Name</label>
+      <input type="text" id="outfitName" placeholder="e.g. Summer Outfit. Visible in-game.">
+    </div>
+    <div class="field">
+      <label for="language">Language</label>
+      <select id="language">
+        <option value="00">Language: Japanese (00)</option>
+        <option value="01" selected>Language: English (01)</option>
+        <option value="02">Language: French (02)</option>
+        <option value="03">Language: Spanish EU (03)</option>
+        <option value="04">Language: German (04)</option>
+        <option value="05">Language: Italian (05)</option>
+        <option value="07">Language: Portuguese LA (07)</option>
+        <option value="09">Language: Korean (09)</option>
+        <option value="10">Language: Chinese Traditional (10)</option>
+        <option value="11">Language: Chinese Simplified (11)</option>
+        <option value="30">Language: Spanish LA (30)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="price">Price</label>
+      <input type="number" id="price" placeholder="$" min="1">
+    </div>
+    <div class="field">
+      <label for="internalName">Internal costume name</label>
+      <input type="text" id="internalName" placeholder="Exactly 7 characters." maxlength="7">
+      <span class="hint">A unique name for your outfit. Not visible in-game.</span>
+    </div>
+    <div class="field">
+      <label for="outfitId">Costume ID</label>
+      <input type="number" id="outfitId" placeholder="Unique ID for your outfit." min="50">
+    </div>
+    <div class="field">
+      <label for="itemId">Item ID</label>
+      <input type="number" id="itemId" placeholder="Unique item ID for your outfit." min="1">
+    </div>
+  </div>
+
+  <div class="section-label">3D model names (WITHOUT .geom extension)</div>
+  <div class="grid">
+    <div class="field">
+      <label for="maleModelOutdoor">Male model (outdoors)</label>
+      <input type="text" id="maleModelOutdoor" placeholder="Male model used outdoors.">
+    </div>
+    <div class="field">
+      <label for="maleModelIndoor">Male model (indoors)</label>
+      <input type="text" id="maleModelIndoor" placeholder="Male model used indoors (usually has slippers).">
+      <span class="hint">Can be the same as the outdoor model.</span>
+    </div>
+    <div class="field">
+      <label for="femaleModelOutdoor">Female model (outdoors)</label>
+      <input type="text" id="femaleModelOutdoor" placeholder="Female model used outdoors">
+    </div>
+    <div class="field">
+      <label for="femaleModelIndoor">Female model (indoors)</label>
+      <input type="text" id="femaleModelIndoor" placeholder="Female model used indoors (usually has slippers).">
+      <span class="hint">Can be the same as the outdoor model.</span>
+    </div>
+    <div class="field">
+      <label for="maleFaceModel">Male face model</label>
+      <input type="text" id="maleFaceModel" value="pch001a" placeholder="Face model. Default: pch001a.">
+    </div>
+    <div class="field">
+      <label for="femaleFaceModel">Female face model</label>
+      <input type="text" id="femaleFaceModel" value="pch002a" placeholder="Face model. Default: pch002a.">
+    </div>
+  </div>
+
+  <button class="btn-generate" onclick="generate()">Generate</button>
+  <button class="btn-download" id="btnDownload" onclick="downloadZip()">Download ZIP File</button>
+</div>
+
+<div class="output-container" id="outputContainer"></div>
+
+<div class="error-overlay" id="errorOverlay">
+  <div class="error-box">
+    <h2>Missing Fields</h2>
+    <p id="errorMsg">Please fill in all fields.</p>
+    <button onclick="closeError()">OK</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// Descriptions per language
+const descriptions = {
+  "00": "コスチューム",
+  "01": "Costume.",
+  "02": "Tenue.",
+  "03": "Atuendo.",
+  "04": "Kostüm.",
+  "05": "Costume.",
+  "07": "Traje",
+  "09": "코스튬",
+  "10": "服裝",
+  "11": "服装",
+  "30": "Atuendo"
+};
+
+// Language IDs for the zip
+const allLangs = ["00","01","02","03","04","05","07","09","10","11","30"];
+
+// Validation
+function validate(vals) {
+  const { outfitName, langId, price, internalName, outfitId, itemId,
+    maleOut, maleIn, maleFace, femaleOut, femaleIn, femaleFace } = vals;
+
+  if (!outfitName) return "Outfit Name is required.";
+  if (!price || isNaN(price) || Number(price) < 1) return "Price must be a number of at least 1.";
+  if (!/^[a-zA-Z0-9_]{7}$/.test(internalName)) return "Internal Outfit Name must be exactly 7 alphanumeric characters or underscores.";
+  if (!outfitId || isNaN(outfitId) || Number(outfitId) < 50) return "Outfit ID must be a number of at least 50.";
+//  if (!itemId || isNaN(itemId) || String(itemId).length > 7) return "Item ID must be a number with at most 7 digits."; unused
+  if (!maleOut) return "Male Model Name (Outdoor) is required.";
+  if (!maleIn) return "Male Model Name (Indoor) is required.";
+//  if (!maleFace) return "Male Face Model Name is required."; unused
+  if (!femaleOut) return "Female Model Name (Outdoor) is required.";
+  if (!femaleIn) return "Female Model Name (Indoor) is required.";
+//  if (!femaleFace) return "Female Face Model Name is required."; unused
+  return null;
+}
+
+// Generate CSV content strings
+function buildCSVs(v) {
+  const { outfitName, langId, price, internalName, outfitId, itemId,
+    maleOut, maleIn, maleFace, femaleOut, femaleIn, femaleFace } = v;
+
+  const sameOutdoorMale = maleOut === maleIn;
+  const sameOutdoorFemale = femaleOut === femaleIn;
+
+  const description = descriptions[langId] || "Costume.";
+
+  // 1. anim_setting
+  let animLines = [];
+  animLines.push(`"${maleOut}","pc001a"`);
+  if (!sameOutdoorMale) animLines.push(`"${maleIn}","pc001a"`);
+  animLines.push(`"${femaleOut}","pc002a"`);
+  if (!sameOutdoorFemale) animLines.push(`"${femaleIn}","pc002a"`);
+  const animCSV = `string2 0,string2 1\n` + animLines.join("\n");
+
+  // 2. item_parameter
+  const itemCSV = `int32 0,empty 1,empty 2,empty 3,int32 4,int32 5,int32 6,int32 7,int32 8,int32 9,int32 10,bool 11,bool 12,int32 13,empty 14,int32 15,int32 16,int32 17,int32 18,string2 19,int32 20,int32 21,int32 22,int32 23,int32 24,int32 25,int32 26,string2 27\n` +
+    `${itemId},,,,${itemId},${itemId},7,78,${itemId},${price},-1,false,false,0,,-1,-1,-1,-1,"",0,0,0,-1,-1,-1,${outfitId},""`;
+
+  // 3. lod 000
+  const lod000CSV = `string2 0,float 1,float 2,float 3,float 4,float 5,float 6,float 7,float 8,float 9,float 10\n` +
+    `"${maleOut}",25,1000,0,0,0,0,0,0,0,0\n"${femaleOut}",25,1000,0,0,0,0,0,0,0,0`;
+
+  // 4. lod 001
+  const lod001CSV = `string2 0,string2 1,string2 2,string2 3,string2 4,string2 5,string2 6,string2 7,string2 8,string2 9,string2 10\n` +
+    `"${maleOut}","","","","","","","","","",""\n"${femaleOut}","","","","","","","","","",""`;
+
+  // 5. model_costume_change
+  const mccCSV = `string3 0,string3 1,int32 2,string3 3,string3 4,string3 5,string3 6,empty 7\n` +
+    `"*MalePlayer_${outfitId}","*MalePlayer",${outfitId},"pc001o${internalName}","pc001i${internalName}","","pc001i${internalName}",\n` +
+    `"*FemalePlayer_${outfitId}","*FemalePlayer",${outfitId},"pc002o${internalName}","pc002i${internalName}","","pc002i${internalName}",`;
+
+  // 6. model_setting
+  const modelRow = (name) =>
+    `"${name}",,"","","",1,,,0.3,1.8,0.25,1.5,0.25,1.5,0.3,1.8,1,1.5,1,1.5,0.35,1.9,-1,-1,1.5,3,5,"e003","e003","","","","",7.5,0.496,-1,0.64,0,1,0,180,0.5,0.7,1.5,0,0.5,0.5,0.34,,,,0.25,"head",0,0.1,0,1,1,1,1,1,1,1,1,15,18,0,0,-1,-1,-1,0,,0,1,0,0,0,0,"head",1,1`;
+  let modelRows = [modelRow(maleOut)];
+  if (!sameOutdoorMale) modelRows.push(modelRow(maleIn));
+  modelRows.push(modelRow(femaleOut));
+  if (!sameOutdoorFemale) modelRows.push(modelRow(femaleIn));
+  const modelCSV = `string2 0,empty 1,string2 2,string2 3,string2 4,float 5,empty 6,empty 7,float 8,float 9,float 10,float 11,float 12,float 13,float 14,float 15,float 16,float 17,float 18,float 19,float 20,float 21,float 22,float 23,float 24,float 25,float 26,string2 27,string2 28,string2 29,string2 30,string2 31,string2 32,float 33,float 34,float 35,float 36,int32 37,float 38,float 39,int32 40,float 41,float 42,float 43,float 44,float 45,float 46,float 47,empty 48,empty 49,empty 50,float 51,string2 52,float 53,float 54,float 55,float 56,float 57,float 58,float 59,float 60,float 61,float 62,float 63,int32 64,int32 65,int32 66,int8 67,int8 68,int8 69,int8 70,int32 71,empty 72,int32 73,int32 74,int8 75,int8 76,int8 77,int8 78,string2 79,int32 80,int32 81\n` +
+    modelRows.join("\n");
+
+  // 7. shop_lineup
+  const shopCSV = `int32 0,int32 1,empty 2,int32 3,empty 4,int32 5,int32 6,int32 7,string2 8,empty 9\n` +
+    `90${itemId},9,,${itemId},,-1,-1,-1,"",\n` +
+    `91${itemId},91,,${itemId},,-1,-1,-1,"",\n` +
+    `92${itemId},92,,${itemId},,-1,-1,-1,"",\n` +
+    `93${itemId},93,,${itemId},,-1,-1,-1,"",\n` +
+    `94${itemId},94,,${itemId},,-1,-1,-1,"",\n` +
+    `95${itemId},95,,${itemId},,-1,-1,-1,"",\n` +
+    `96${itemId},96,,${itemId},,-1,-1,-1,"",`;
+
+  // 8. union_model
+  const unionCSV = `string2 0,string2 1,empty 2,string2 3,empty 4,string2 5,string2 6,string2 7,float 8,string2 9,string2 10,string2 11,bool 12,bool 13,bool 14,bool 15\n` +
+    `"pc001o${internalName}","${maleOut}",,"${maleFace}",,"01","01","01",1,"","","",false,true,true,false\n` +
+    `"pc001i${internalName}","${maleIn}",,"${maleFace}",,"01","01","01",1,"","","",false,true,true,false\n` +
+    `"pc002o${internalName}","${femaleOut}",,"${femaleFace}",,"01","01","01",1,"","","",false,true,true,false\n` +
+    `"pc002i${internalName}","${femaleIn}",,"${femaleFace}",,"01","01","01",1,"","","",false,true,true,false`;
+
+  // Text files builder per lang
+  function textFiles(lid) {
+    const desc = descriptions[lid] || "Costume.";
+    const expl = `string2 0,string 1\n"${itemId}","${desc}"`;
+    const name = `string2 0,string 1\n"${itemId}","${outfitName}"`;
+    const ruby = `string2 0,string 1\n"${itemId}","${outfitName}"`;
+    return { expl, name, ruby };
+  }
+
+  return {
+    animCSV, itemCSV, lod000CSV, lod001CSV, mccCSV, modelCSV, shopCSV, unionCSV,
+    textFiles, description
+  };
+}
+
+// Render output sections
+function renderOutput(v, csvs) {
+  const { langId, outfitName } = v;
+  const { animCSV, itemCSV, lod000CSV, lod001CSV, mccCSV, modelCSV, shopCSV, unionCSV, textFiles, description } = csvs;
+
+  const { expl: selExpl, name: selName, ruby: selRuby } = textFiles(langId);
+
+  const sections = [
+    { label: `Paste into "patch\\data\\anim_setting.mbe\\001_same_animation_data.ap.csv":`, content: animCSV },
+    { label: `Paste into "patch\\data\\item.mbe\\000_item_parameter.ap.csv":`, content: itemCSV },
+    { label: `Paste into "patch\\data\\lod_chara.mbe\\000_lod.ap.csv":`, content: lod000CSV },
+    { label: `Paste into "patch\\data\\lod_chara.mbe\\001_lod_model.ap.csv":`, content: lod001CSV },
+    { label: `Paste into "patch\\data\\model_costume_change.mbe\\001_model_costume_change.ap.csv":`, content: mccCSV },
+    { label: `Paste into "patch\\data\\model_setting.mbe\\000_model_setting.ap.csv":`, content: modelCSV },
+    { label: `Paste into "patch\\data\\shop.mbe\\001_shop_lineup.ap.csv":`, content: shopCSV },
+    { label: `Paste into "patch\\data\\union_model.mbe\\000_union_model.ap.csv":`, content: unionCSV },
+    { label: `Paste into "patch_text${langId}\\text\\item_explanation.mbe\\000_Sheet1.ap.csv":`, content: selExpl },
+    { label: `Paste into "patch_text${langId}\\text\\item_name.mbe\\000_Sheet1.ap.csv":`, content: selName },
+    { label: `Paste into "patch_text${langId}\\text\\item_ruby.mbe\\000_Sheet1.ap.csv":`, content: selRuby },
+  ];
+
+  const container = document.getElementById("outputContainer");
+  container.innerHTML = "";
+  container.style.display = "block";
+
+  sections.forEach((s, i) => {
+    const sec = document.createElement("div");
+    sec.className = "output-section";
+
+    const lbl = document.createElement("div");
+    lbl.className = "output-label";
+    lbl.textContent = s.label;
+
+    const box = document.createElement("pre");
+    box.className = "output-box";
+    box.textContent = s.content;
+
+    const copyRow = document.createElement("div");
+    copyRow.className = "copy-row";
+
+    const btn = document.createElement("button");
+    btn.className = "btn-copy";
+    btn.textContent = "Copy to Clipboard";
+    btn.onclick = () => {
+      navigator.clipboard.writeText(s.content).then(() => {
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "Copy to Clipboard";
+          btn.classList.remove("copied");
+        }, 1500);
+      });
+    };
+
+    copyRow.appendChild(btn);
+    sec.appendChild(lbl);
+    sec.appendChild(box);
+    sec.appendChild(copyRow);
+    container.appendChild(sec);
+  });
+
+  document.getElementById("btnDownload").style.display = "block";
+}
+
+// Main generate
+function generate() {
+  const outfitName = document.getElementById("outfitName").value.trim();
+  const langId = document.getElementById("language").value;
+  const price = document.getElementById("price").value.trim();
+  const internalName = document.getElementById("internalName").value.trim();
+  const outfitId = document.getElementById("outfitId").value.trim();
+  const itemId = document.getElementById("itemId").value.trim();
+  const maleOut = document.getElementById("maleModelOutdoor").value.trim();
+  const maleIn = document.getElementById("maleModelIndoor").value.trim();
+  const maleFace = document.getElementById("maleFaceModel").value.trim();
+  const femaleOut = document.getElementById("femaleModelOutdoor").value.trim();
+  const femaleIn = document.getElementById("femaleModelIndoor").value.trim();
+  const femaleFace = document.getElementById("femaleFaceModel").value.trim();
+
+  const vals = { outfitName, langId, price, internalName, outfitId, itemId,
+    maleOut, maleIn, maleFace, femaleOut, femaleIn, femaleFace };
+
+  const err = validate(vals);
+  if (err) {
+    document.getElementById("errorMsg").textContent = err;
+    document.getElementById("errorOverlay").classList.add("active");
+    return;
+  }
+
+  const csvs = buildCSVs(vals);
+  renderOutput(vals, csvs);
+
+  // Store for zip
+  window._lastVals = vals;
+  window._lastCsvs = csvs;
+}
+
+// Download ZIP
+async function downloadZip() {
+  const v = window._lastVals;
+  const csvs = window._lastCsvs;
+  if (!v || !csvs) return;
+
+  const zip = new JSZip();
+
+  const patchData = zip.folder("patch").folder("data");
+
+  patchData.folder("anim_setting.mbe").file("001_same_animation_data.ap.csv", csvs.animCSV);
+  patchData.folder("item.mbe").file("000_item_parameter.ap.csv", csvs.itemCSV);
+  patchData.folder("lod_chara.mbe").file("000_lod.ap.csv", csvs.lod000CSV);
+  patchData.folder("lod_chara.mbe").file("001_lod_model.ap.csv", csvs.lod001CSV);
+  patchData.folder("model_costume_change.mbe").file("001_model_costume_change.ap.csv", csvs.mccCSV);
+  patchData.folder("model_setting.mbe").file("000_model_setting.ap.csv", csvs.modelCSV);
+  patchData.folder("shop.mbe").file("001_shop_lineup.ap.csv", csvs.shopCSV);
+  patchData.folder("union_model.mbe").file("000_union_model.ap.csv", csvs.unionCSV);
+
+  const langFolderMap = {
+    "00": "patch_text00", "01": "patch_text01", "02": "patch_text02",
+    "03": "patch_text03", "04": "patch_text04", "05": "patch_text05",
+    "07": "patch_text07", "09": "patch_text09", "10": "patch_text10",
+    "11": "patch_text11", "30": "patch_text30"
+  };
+
+  for (const lid of allLangs) {
+    const { expl, name, ruby } = csvs.textFiles(lid);
+    const folder = langFolderMap[lid] || ("patch_text" + lid);
+    const base = zip.folder(folder).folder("text");
+    base.folder("item_explanation.mbe").file("000_Sheet1.ap.csv", expl);
+    base.folder("item_name.mbe").file("000_Sheet1.ap.csv", name);
+    base.folder("item_ruby.mbe").file("000_Sheet1.ap.csv", ruby);
+  }
+
+  const content = await zip.generateAsync({ type: "blob" });
+  const url = URL.createObjectURL(content);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dsts_costume_mod.zip";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function closeError() {
+  document.getElementById("errorOverlay").classList.remove("active");
+}
+
+// Close overlay on backdrop click
+document.getElementById("errorOverlay").addEventListener("click", function(e) {
+  if (e.target === this) closeError();
+});
+</script>
+</body>
+</html>
